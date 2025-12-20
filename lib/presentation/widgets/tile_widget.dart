@@ -35,20 +35,22 @@ class _TileWidgetState extends State<TileWidget>
   void initState() {
     super.initState();
 
-    // Reveal animation
+    // Reveal animation - improved for number tiles
     _revealController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+    // Scale animation: starts small, grows to normal size
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _revealController,
-        curve: Curves.easeOut,
+        curve: Curves.elasticOut,
       ),
     );
 
-    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+    // Opacity animation: fades in
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _revealController,
         curve: Curves.easeOut,
@@ -63,18 +65,19 @@ class _TileWidgetState extends State<TileWidget>
 
     _flagScaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.3),
-        weight: 50,
+        tween: Tween<double>(begin: 1.0, end: 1.3).chain(
+          CurveTween(curve: Curves.easeOut),
+        ),
+        weight: 1.0,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.3, end: 1.0),
-        weight: 50,
+        tween: Tween<double>(begin: 1.3, end: 1.0).chain(
+          CurveTween(curve: Curves.elasticOut),
+        ),
+        weight: 1.0,
       ),
     ]).animate(
-      CurvedAnimation(
-        parent: _flagController,
-        curve: Curves.elasticOut,
-      ),
+      _flagController,
     );
 
     // Trigger animations based on tile state
@@ -157,14 +160,14 @@ class _TileWidgetState extends State<TileWidget>
                 duration: const Duration(milliseconds: 200),
                 child: _buildHiddenTile(),
               ),
-              // Revealed tile content
+              // Revealed tile content with animation
               AnimatedBuilder(
                 animation: _revealController,
                 builder: (context, child) {
                   return Opacity(
-                    opacity: 1.0 - _opacityAnimation.value,
+                    opacity: _opacityAnimation.value,
                     child: Transform.scale(
-                      scale: 1.0 - _scaleAnimation.value * 0.3,
+                      scale: _scaleAnimation.value,
                       child: _buildRevealedTile(),
                     ),
                   );

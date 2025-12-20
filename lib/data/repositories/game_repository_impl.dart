@@ -39,8 +39,11 @@ class GameRepositoryImpl implements GameRepository {
     final board = gameState.board.map((r) => r.map((t) => t).toList()).toList();
     final tile = board[row][col];
 
-    // Can't reveal flagged or already revealed tiles
-    if (tile.isFlagged || tile.isRevealed) return gameState;
+    // Can't reveal flagged tiles (flag is a marker, must be removed first)
+    if (tile.isFlagged) return gameState;
+    
+    // Can't reveal already revealed tiles
+    if (tile.isRevealed) return gameState;
 
     // First click: generate mines ensuring this tile is safe
     if (gameState.isFirstClick) {
@@ -114,7 +117,7 @@ class GameRepositoryImpl implements GameRepository {
     final board = gameState.board.map((r) => r.map((t) => t).toList()).toList();
     final tile = board[row][col];
 
-    // Can't flag revealed tiles
+    // Can't flag revealed tiles (only hidden tiles can be flagged)
     if (tile.isRevealed) return gameState;
 
     final newStatus = tile.isFlagged ? TileStatus.hidden : TileStatus.flagged;
