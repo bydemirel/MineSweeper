@@ -47,6 +47,16 @@ class GameRepositoryImpl implements GameRepository {
 
     // First click: generate mines ensuring this tile is safe
     if (gameState.isFirstClick) {
+      // Save all flag states before generating mines
+      final flagStates = <String, TileStatus>{};
+      for (int r = 0; r < board.length; r++) {
+        for (int c = 0; c < board[r].length; c++) {
+          if (board[r][c].isFlagged) {
+            flagStates['$r,$c'] = board[r][c].status;
+          }
+        }
+      }
+
       board[row][col] = tile.copyWith(status: TileStatus.revealed);
       final boardWithMines = generateMines(
         board,
@@ -55,6 +65,19 @@ class GameRepositoryImpl implements GameRepository {
         col,
       );
       final boardWithNumbers = calculateAdjacentMines(boardWithMines);
+      
+      // Restore flag states after mine generation
+      for (final entry in flagStates.entries) {
+        final coords = entry.key.split(',');
+        final r = int.parse(coords[0]);
+        final c = int.parse(coords[1]);
+        if (r < boardWithNumbers.length && c < boardWithNumbers[r].length) {
+          boardWithNumbers[r][c] = boardWithNumbers[r][c].copyWith(
+            status: entry.value,
+          );
+        }
+      }
+      
       final revealedBoard = revealEmptyTiles(boardWithNumbers, row, col);
 
       final newStatus = checkWin(
@@ -120,7 +143,10 @@ class GameRepositoryImpl implements GameRepository {
     // Can't flag revealed tiles (only hidden tiles can be flagged)
     if (tile.isRevealed) return gameState;
 
-    final newStatus = tile.isFlagged ? TileStatus.hidden : TileStatus.flagged;
+    // Toggle flag: if flagged, remove flag (set to hidden); if not flagged, add flag
+    final newStatus = tile.status == TileStatus.flagged 
+        ? TileStatus.hidden 
+        : TileStatus.flagged;
     board[row][col] = tile.copyWith(status: newStatus);
 
     final flagsPlaced = gameState.flagsPlaced +
@@ -161,7 +187,12 @@ class GameRepositoryImpl implements GameRepository {
     for (final position in minePositions) {
       final row = position ~/ cols;
       final col = position % cols;
-      board[row][col] = board[row][col].copyWith(type: TileType.mine);
+      // Preserve the existing status (flag, hidden, revealed)
+      final currentTile = board[row][col];
+      board[row][col] = currentTile.copyWith(
+        type: TileType.mine,
+        status: currentTile.status, // Preserve flag status
+      );
     }
 
     return board;
@@ -201,9 +232,12 @@ class GameRepositoryImpl implements GameRepository {
           }
         }
 
-        board[row][col] = board[row][col].copyWith(
+        // Preserve the existing status (flag, hidden, revealed)
+        final currentTile = board[row][col];
+        board[row][col] = currentTile.copyWith(
           type: count > 0 ? TileType.number : TileType.empty,
           adjacentMines: count > 0 ? count : null,
+          status: currentTile.status, // Preserve flag status
         );
       }
     }

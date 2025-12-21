@@ -57,14 +57,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   void _handleTileTap(int row, int col) {
-    final gameState = ref.read(gameStateProvider);
-    final tile = gameState.board[row][col];
-
-    // If flag mode is active, toggle flag
+    // If flag mode is active, toggle flag (always allow toggle in flag mode)
     if (_flagModeActive) {
       ref.read(gameStateProvider.notifier).toggleFlag(row, col);
       return;
     }
+
+    final gameState = ref.read(gameStateProvider);
+    final tile = gameState.board[row][col];
 
     // If tile is flagged, do nothing (flag is just a marker)
     // Flag must be removed in flag mode before revealing
@@ -147,6 +147,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final gameState = ref.watch(gameStateProvider);
     final elapsedTime = gameState.elapsedTime ?? Duration.zero;
     final displayTime = gameState.status == GameStatus.playing ||
@@ -156,7 +157,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         : '0s';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -166,12 +167,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 // Top navigation bar
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  color: const Color(0xFF2C2C2C),
+                  color: theme.colorScheme.surface,
                   child: Row(
                     children: [
                       // Back button
                       IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
                         onPressed: () {
                           HapticFeedback.lightImpact();
                           Navigator.of(context).pop();
@@ -182,22 +183,22 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF3A3A3A),
+                          color: theme.colorScheme.surface.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.access_time,
-                              color: Color(0xFF4FC3F7),
+                              color: theme.colorScheme.primary,
                               size: 18,
                             ),
                             const SizedBox(width: 6),
                             Text(
                               displayTime,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -210,7 +211,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF3A3A3A),
+                          color: theme.colorScheme.surface.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -218,14 +219,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                           children: [
                             const Icon(
                               Icons.flag,
-                              color: Colors.red,
+                              color: Color(0xFFE91E63), // Pink color
                               size: 18,
                             ),
                             const SizedBox(width: 6),
                             Text(
                               '${gameState.minesRemaining}',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: theme.colorScheme.onSurface,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -236,12 +237,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                       const Spacer(),
                       // Refresh button
                       IconButton(
-                        icon: const Icon(Icons.refresh, color: Colors.white),
+                        icon: Icon(Icons.refresh, color: theme.colorScheme.onSurface),
                         onPressed: _handleReset,
                       ),
                       // Settings button
                       IconButton(
-                        icon: const Icon(Icons.settings, color: Colors.white),
+                        icon: Icon(Icons.settings, color: theme.colorScheme.onSurface),
                         onPressed: () {
                           HapticFeedback.lightImpact();
                           Navigator.push(
@@ -275,38 +276,36 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      // Flag Mode button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _flagModeActive = !_flagModeActive;
-                            });
-                            HapticFeedback.mediumImpact();
-                          },
-                          icon: const Icon(Icons.flag),
-                          label: Text(_flagModeActive ? 'Bayrak Modu Aktif' : 'Bayrak Ekle'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: _flagModeActive
-                                ? const Color(0xFFE91E63) // Pink/Red when active
-                                : const Color(0xFF2C2C2C),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
+                      // Flag Mode button - commented out for now
+                      // SizedBox(
+                      //   width: double.infinity,
+                      //   child: ElevatedButton.icon(
+                      //     onPressed: () {
+                      //       setState(() {
+                      //         _flagModeActive = !_flagModeActive;
+                      //       });
+                      //       HapticFeedback.mediumImpact();
+                      //     },
+                      //     icon: const Icon(Icons.flag),
+                      //     label: Text(_flagModeActive ? 'Bayrak Modu Aktif' : 'Bayrak Ekle'),
+                      //     style: ElevatedButton.styleFrom(
+                      //       padding: const EdgeInsets.symmetric(vertical: 16),
+                      //       backgroundColor: _flagModeActive
+                      //           ? const Color(0xFFE91E63) // Pink/Red when active
+                      //           : const Color(0xFF2C2C2C),
+                      //       foregroundColor: Colors.white,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(12),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 12),
                       // Instructions
                       Text(
-                        _flagModeActive
-                            ? 'Şüphelendiğin karelere tıkla'
-                            : 'Tap to reveal • Long press to flag',
-                        style: const TextStyle(
-                          color: Colors.white70,
+                        'Tap to reveal • Long press to flag',
+                        style: TextStyle(
+                          color: theme.colorScheme.onBackground.withOpacity(0.7),
                           fontSize: 12,
                         ),
                       ),
@@ -333,75 +332,237 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildGameOverDialog(GameState gameState) {
-    return AlertDialog(
-      backgroundColor: const Color(0xFF1E1E1E),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      contentPadding: const EdgeInsets.all(24),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            gameState.isGameWon
-                ? Icons.celebration
-                : Icons.sentiment_very_dissatisfied,
-            size: 64,
-            color: gameState.isGameWon ? Colors.green : Colors.red,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            gameState.isGameWon ? 'Tebrikler!' : 'Oyun Bitti',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+    final theme = Theme.of(context);
+    
+    if (gameState.isGameWon) {
+      // Win dialog (keep existing design for win)
+      return AlertDialog(
+        backgroundColor: theme.colorScheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.celebration,
+              size: 64,
+              color: Colors.green,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            gameState.isGameWon
-                ? 'Tüm mayınları buldun!'
-                : 'Bir mayına bastın!',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (gameState.isGameWon && gameState.elapsedTime != null) ...[
             const SizedBox(height: 16),
             Text(
-              'Süre: ${_formatDuration(gameState.elapsedTime!)}',
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.blue,
+              'Tebrikler!',
+              style: TextStyle(
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tüm mayınları buldun!',
+              style: TextStyle(
+                fontSize: 16,
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (gameState.elapsedTime != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                'Süre: ${_formatDuration(gameState.elapsedTime!)}',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _handleReset();
+                  },
+                  child: const Text('Yeniden Başla'),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Ana Menü'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Game Over dialog (new design matching the image)
+    final isDark = theme.brightness == Brightness.dark;
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF2D1B4E), // Dark purple
+                    Color(0xFF4A2C5A), // Dark pink-purple
+                  ],
+                )
+              : LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    theme.colorScheme.surface,
+                    theme.colorScheme.surface.withOpacity(0.9),
+                  ],
+                ),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Icon
+            Container(
+              width: 80,
+              height: 80,
+              decoration: const BoxDecoration(
+                color: Color(0xFFE91E63), // Pinkish-red
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Title
+            Text(
+              'Game Over',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Message
+            Text(
+              'You hit a mine. Better luck next time!',
+              style: TextStyle(
+                fontSize: 16,
+                color: isDark 
+                    ? const Color(0xFFB0B0B0)
+                    : theme.colorScheme.onSurface.withOpacity(0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            // Play Again button
+            SizedBox(
+              width: double.infinity,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF4FC3F7), // Blue
+                      Color(0xFF9C27B0), // Purple
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      _handleReset();
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.refresh, color: Colors.white, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Play Again',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Back to Home button
+            SizedBox(
+              width: double.infinity,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF6A4C93), // Dark purple
+                      Color(0xFF8B5A6B), // Purple-brown
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(); // Go back to main screen
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.home, color: Colors.white, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Back to Home',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
-          const SizedBox(height: 24),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _handleReset();
-                },
-                child: const Text('Yeniden Başla'),
-              ),
-              const SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop(); // Go back to main screen
-                },
-                child: const Text('Ana Menü'),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

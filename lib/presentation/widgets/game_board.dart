@@ -24,21 +24,29 @@ class GameBoard extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final availableHeight = screenHeight * 0.6;
-    final availableWidth = screenWidth - 32; // Padding
+    final containerPadding = 8.0;
+    final availableWidth = screenWidth - 32 - (containerPadding * 2); // Screen padding + container padding
+    final availableHeightForTiles = availableHeight - (containerPadding * 2); // Container padding
 
     final rows = board.length;
     final cols = board[0].length;
 
     // Calculate tile size to fit screen
-    final tileWidth = availableWidth / cols;
-    final tileHeight = availableHeight / rows;
-    final tileSize = (tileWidth < tileHeight ? tileWidth : tileHeight) - 2;
+    // Account for margins between tiles (each tile has padding on all sides)
+    final tileMargin = 2.0; // Margin between tiles
+    final totalMarginPerTile = tileMargin * 2; // Left + right margin per tile
+    
+    final tileWidth = (availableWidth - (totalMarginPerTile * cols)) / cols;
+    final tileHeight = (availableHeightForTiles - (totalMarginPerTile * rows)) / rows;
+    final tileSize = (tileWidth < tileHeight ? tileWidth : tileHeight);
 
+    final theme = Theme.of(context);
+    
     return RepaintBoundary(
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(containerPadding),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: theme.colorScheme.surface.withOpacity(0.8),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -47,11 +55,14 @@ class GameBoard extends StatelessWidget {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: List.generate(cols, (col) {
-                return TileWidget(
-                  tile: board[row][col],
-                  onTap: () => onTileTap(row, col),
-                  onLongPress: () => onTileLongPress(row, col),
-                  size: tileSize,
+                return Padding(
+                  padding: EdgeInsets.all(tileMargin),
+                  child: TileWidget(
+                    tile: board[row][col],
+                    onTap: () => onTileTap(row, col),
+                    onLongPress: () => onTileLongPress(row, col),
+                    size: tileSize,
+                  ),
                 );
               }),
             );

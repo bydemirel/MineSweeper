@@ -9,15 +9,19 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final settings = ref.watch(settingsProvider);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: const Color(0xB3000000), // Colors.black.withOpacity(0.7)
+      backgroundColor: isDark 
+          ? Colors.black.withOpacity(0.7)
+          : Colors.black.withOpacity(0.5),
       body: Center(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 24),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -29,16 +33,16 @@ class SettingsScreen extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Settings',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
                       onPressed: () {
                         HapticFeedback.lightImpact();
                         Navigator.of(context).pop();
@@ -47,7 +51,11 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const Divider(color: Color(0xFF2C2C2C), height: 1, thickness: 1),
+              Divider(
+                color: theme.colorScheme.onSurface.withOpacity(0.2),
+                height: 1,
+                thickness: 1,
+              ),
               // Settings options
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -57,7 +65,7 @@ class SettingsScreen extends ConsumerWidget {
                       icon: Icons.wb_sunny,
                       iconColor: Colors.yellow,
                       title: 'Theme',
-                      subtitle: 'Light mode',
+                      subtitle: settings.isLightMode ? 'Light mode' : 'Dark mode',
                       value: settings.isLightMode,
                       onChanged: (value) {
                         HapticFeedback.lightImpact();
@@ -96,25 +104,25 @@ class SettingsScreen extends ConsumerWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF151515),
+                  color: theme.colorScheme.surface.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
-                  children: const [
+                  children: [
                     Text(
                       'Minesweeper v1.0',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'A modern take on a classic puzzle game',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFFB0B0B0),
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -186,10 +194,12 @@ class _SettingOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF151515),
+        color: theme.colorScheme.surface.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -218,18 +228,18 @@ class _SettingOption extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFFB0B0B0),
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
               ],

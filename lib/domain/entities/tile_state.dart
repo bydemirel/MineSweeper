@@ -45,7 +45,7 @@ class TileState extends Equatable {
   bool get isMine => type == TileType.mine;
   bool get isEmpty => type == TileType.empty;
   bool get isNumber => type == TileType.number;
-  bool get isHidden => status == TileStatus.hidden;
+  bool get isHidden => status == TileStatus.hidden || status == TileStatus.flagged;
   bool get isRevealed => status == TileStatus.revealed;
   bool get isFlagged => status == TileStatus.flagged;
 

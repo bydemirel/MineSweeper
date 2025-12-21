@@ -98,11 +98,16 @@ class _TileWidgetState extends State<TileWidget>
       _revealController.forward();
     }
 
-    // Animate flag
+    // Animate flag - ensure flag stays visible if still flagged
     if (!oldWidget.tile.isFlagged && widget.tile.isFlagged) {
       _flagController.forward(from: 0.0);
     } else if (oldWidget.tile.isFlagged && !widget.tile.isFlagged) {
       _flagController.reverse();
+    } else if (widget.tile.isFlagged) {
+      // If tile is still flagged, ensure animation is at completed state
+      if (_flagController.value < 1.0) {
+        _flagController.value = 1.0;
+      }
     }
   }
 
@@ -114,7 +119,7 @@ class _TileWidgetState extends State<TileWidget>
   }
 
   void _handleTapDown(TapDownDetails details) {
-    if (widget.tile.isHidden && !widget.tile.isFlagged) {
+    if (widget.tile.isHidden) {
       setState(() => _isPressed = true);
     }
   }
@@ -181,37 +186,57 @@ class _TileWidgetState extends State<TileWidget>
   }
 
   Widget _buildHiddenTile() {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2C),
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark 
+              ? const Color(0xFF2C2C2C)
+              : theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: isDark 
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: Border.all(
+            color: isDark 
+                ? const Color(0xFF1A1A1A)
+                : theme.colorScheme.onSurface.withOpacity(0.1),
+            width: 1,
           ),
-        ],
-        border: Border.all(
-          color: const Color(0xFF1A1A1A),
-          width: 1,
         ),
+        child: widget.tile.isFlagged
+            ? Center(
+                child: AnimatedBuilder(
+                  animation: _flagScaleAnimation,
+                  builder: (context, child) {
+                    // Ensure flag is always visible when tile is flagged
+                    // If animation hasn't started or completed, show at scale 1.0
+                    final scale = _flagScaleAnimation.value > 0 
+                        ? _flagScaleAnimation.value 
+                        : 1.0;
+                    return Transform.scale(
+                      scale: scale,
+                      child: const Icon(
+                        Icons.flag,
+                        color: Color(0xFFE91E63), // Pink color matching the design
+                        size: 20,
+                      ),
+                    );
+                  },
+                ),
+              )
+            : null,
       ),
-      child: widget.tile.isFlagged
-          ? AnimatedBuilder(
-              animation: _flagScaleAnimation,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _flagScaleAnimation.value,
-                  child: const Icon(
-                    Icons.flag,
-                    color: Colors.red,
-                    size: 20,
-                  ),
-                );
-              },
-            )
-          : null,
     );
   }
 
@@ -220,6 +245,9 @@ class _TileWidgetState extends State<TileWidget>
       return const SizedBox.shrink();
     }
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     Color backgroundColor;
     Widget? content;
 
@@ -231,10 +259,14 @@ class _TileWidgetState extends State<TileWidget>
         size: 16,
       );
     } else if (widget.tile.isEmpty) {
-      backgroundColor = const Color(0xFF1E1E1E);
+      backgroundColor = isDark 
+          ? const Color(0xFF1E1E1E)
+          : theme.colorScheme.surface;
       content = null;
     } else {
-      backgroundColor = const Color(0xFF1E1E1E);
+      backgroundColor = isDark 
+          ? const Color(0xFF1E1E1E)
+          : theme.colorScheme.surface;
       final number = widget.tile.adjacentMines ?? 0;
       content = Text(
         number.toString(),
@@ -246,16 +278,22 @@ class _TileWidgetState extends State<TileWidget>
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: const Color(0xFF2C2C2C),
-          width: 1,
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isDark 
+                ? const Color(0xFF2C2C2C)
+                : theme.colorScheme.onSurface.withOpacity(0.2),
+            width: 1,
+          ),
         ),
+        child: content != null ? Center(child: content) : null,
       ),
-      child: content,
     );
   }
 

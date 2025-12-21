@@ -88,18 +88,32 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1A1A2E),
-              Color(0xFF16213E),
-              Color(0xFF0F3460),
-            ],
-          ),
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF1A1A2E),
+                    Color(0xFF16213E),
+                    Color(0xFF0F3460),
+                  ],
+                )
+              : LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    theme.colorScheme.background,
+                    theme.colorScheme.background.withOpacity(0.98),
+                    theme.colorScheme.surface.withOpacity(0.95),
+                  ],
+                ),
         ),
         child: SafeArea(
           child: Padding(
@@ -137,11 +151,11 @@ class _MainScreenState extends State<MainScreen>
                   position: _slideAnimations[1],
                   child: FadeTransition(
                     opacity: _fadeAnimations[1],
-                    child: const Text(
+                    child: Text(
                       'A modern take on a classic puzzle',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Color(0xFFB0B0B0),
+                        color: theme.colorScheme.onBackground.withOpacity(0.7),
                         fontWeight: FontWeight.w300,
                       ),
                     ),
@@ -248,16 +262,21 @@ class _DifficultyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: isDark 
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -287,18 +306,18 @@ class _DifficultyCard extends StatelessWidget {
                 children: [
                   Text(
                     difficulty.displayName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${difficulty.rows}x${difficulty.cols} • ${difficulty.mineCount} mines',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFFB0B0B0),
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -306,9 +325,9 @@ class _DifficultyCard extends StatelessWidget {
               ),
             ),
             // Chevron icon
-            const Icon(
+            Icon(
               Icons.chevron_right,
-              color: Colors.white70,
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
               size: 24,
             ),
           ],
@@ -325,29 +344,34 @@ class _SettingsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: isDark 
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: const Center(
+        child: Center(
           child: Text(
             'Settings',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: theme.colorScheme.onSurface,
             ),
           ),
         ),
