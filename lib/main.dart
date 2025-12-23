@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'presentation/screens/main_screen.dart';
+import 'presentation/screens/splash_screen.dart';
 import 'presentation/providers/settings_provider.dart';
 
 void main() {
@@ -33,7 +33,7 @@ class MinefieldApp extends ConsumerWidget {
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
       themeMode: settings.isLightMode ? ThemeMode.light : ThemeMode.dark,
-      home: const MainScreen(),
+      home: const SplashScreen(),
     );
   }
 

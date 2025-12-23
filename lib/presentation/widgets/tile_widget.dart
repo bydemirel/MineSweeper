@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../domain/entities/tile_state.dart';
 
 /// Individual tile widget with animations and interactions
@@ -253,20 +254,20 @@ class _TileWidgetState extends State<TileWidget>
 
     if (widget.tile.isMine) {
       backgroundColor = const Color(0xFF8B0000);
-      content = const Icon(
-        Icons.circle,
+      content = FaIcon(
+        FontAwesomeIcons.bomb,
         color: Colors.black,
-        size: 16,
+        size: widget.size * 0.4,
       );
     } else if (widget.tile.isEmpty) {
       backgroundColor = isDark 
           ? const Color(0xFF1E1E1E)
-          : theme.colorScheme.surface;
+          : const Color(0xFFE8E8E8); // Lighter background for light mode
       content = null;
     } else {
       backgroundColor = isDark 
           ? const Color(0xFF1E1E1E)
-          : theme.colorScheme.surface;
+          : const Color(0xFFE8E8E8); // Lighter background for light mode
       final number = widget.tile.adjacentMines ?? 0;
       content = Text(
         number.toString(),
@@ -288,8 +289,8 @@ class _TileWidgetState extends State<TileWidget>
           border: Border.all(
             color: isDark 
                 ? const Color(0xFF2C2C2C)
-                : theme.colorScheme.onSurface.withOpacity(0.2),
-            width: 1,
+                : const Color(0xFFBDBDBD), // More visible border for light mode
+            width: isDark ? 1 : 1.5, // Slightly thicker border in light mode
           ),
         ),
         child: content != null ? Center(child: content) : null,
